@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>http://aw.gamison.top/notes/index.html</loc>
+    
+    <lastmod>2021-10-20</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://aw.gamison.top/about/index.html</loc>
+    
+    <lastmod>2021-10-11</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://aw.gamison.top/2021/10/11/%E6%9C%80%E5%90%8E%E7%9A%84%E8%AE%BF%E8%B0%88/</loc>
+    
+    <lastmod>2021-10-11</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://aw.gamison.top/2020/04/15/ComputerBasic-fasmgdip/</loc>
+    
+    <lastmod>2021-06-25</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://aw.gamison.top/2020/04/16/graphic-and-assembly-basic/</loc>
+    
+    <lastmod>2021-06-25</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://aw.gamison.top/2020/11/07/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/</loc>
+    
+    <lastmod>2021-06-25</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://aw.gamison.top/gallery/index.html</loc>
+    
+    <lastmod>2021-06-25</lastmod>
+    
+  </url>
+  
+
+  <url>
+    <loc>http://aw.gamison.top/</loc>
+    <lastmod>2021-10-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  
+  <url>
+    <loc>http://aw.gamison.top/tags/Computer-Basic/</loc>
+    <lastmod>2021-10-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://aw.gamison.top/tags/Redis/</loc>
+    <lastmod>2021-10-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://aw.gamison.top/tags/Else/</loc>
+    <lastmod>2021-10-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+
+  
+</urlset>

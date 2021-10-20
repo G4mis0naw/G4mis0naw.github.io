@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    【Computer Basic】Graphic And Assembly Basic |
+    
+    GaMiSon</title>
+  
+  <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="GaMiSon" type="application/atom+xml">
+</head>
+
+<body>
+  <main class="content">
+    <section class="outer">
+  <article id="post-graphic-and-assembly-basic" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+      
+
+<h1 class="article-title" itemprop="name">
+  【Computer Basic】Graphic And Assembly Basic
+</h1>
+
+
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/04/16/graphic-and-assembly-basic/" class="article-date">
+  <time datetime="2020-04-16T08:41:36.000Z" itemprop="datePublished">2020-04-16</time>
+</a>
+      
+    </div>
+    
+
+    
+    
+<div class="tocbot"></div>
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+      
+      <p>大一课程计算机基础，蛮有意思的就整理了一下笔记</p>
+<span id="more"></span>
+
+<h2 id="Imagine-methods"><a href="#Imagine-methods" class="headerlink" title="Imagine methods"></a>Imagine methods</h2><p>pixel 像素</p>
+<p>screen resolution 屏幕像素</p>
+<ul>
+<li>Raster graphics 栅格图像</li>
+<li>Vector Graphics</li>
+<li>Fractal</li>
+</ul>
+<img src="http://rok.gamison.top/note/20200414232652.png" style="zoom: 67%;" />
+
+<h2 id="Color-Model"><a href="#Color-Model" class="headerlink" title="Color Model"></a>Color Model</h2><ul>
+<li>RGB - red, green and blue</li>
+<li>CMYK</li>
+<li>HSL &amp; HSV - hue, saturation &amp; lightness / value</li>
+</ul>
+<h2 id="Graphics-Adapters"><a href="#Graphics-Adapters" class="headerlink" title="Graphics Adapters"></a>Graphics Adapters</h2><p>Components mounted on a video card:</p>
+<ul>
+<li>GPU -  graphics processing unit</li>
+<li>video BIOS</li>
+<li>heatvideo memory</li>
+<li>RAMDAC</li>
+<li>heat sink</li>
+<li>output interfaces</li>
+<li>power supply</li>
+</ul>
+<p>A graphics adapter is an electronic board that transform graphic data (text, pictures,video) into a video signal for a monitor.</p>
+<p><strong>Memory organization in graphics adapters</strong></p>
+<p>CGA - Color Graphic Adapter 彩色图形适配器</p>
+<p>EGA - Enhanced Graphic Adapter 增强图形适配器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">; fill the screen with bright white color </span><br><span class="line">MOV AX, 0A000h ; start address of the video memory </span><br><span class="line">MOV ES, AX</span><br><span class="line">XOR DI, DI ; clearing the index register </span><br><span class="line">MOV CX, 8000 ; program sequence counter</span><br><span class="line">MOV AL, 0Fh ; set the code into white</span><br><span class="line">REP STOSB</span><br></pre></td></tr></table></figure>
+
+<p>VGA - Video Graphics Array 视频图形阵列</p>
+<h2 id="GDI"><a href="#GDI" class="headerlink" title="GDI"></a>GDI</h2><p>Graphics Device Interface</p>
+<p><strong>GDI + kernel + Windows API -&gt; Microsoft Windows user interface</strong></p>
+<p><code>DC</code> Device Context</p>
+<p><code>HDC</code> Handle DC</p>
+<h2 id="Assembly-Basic"><a href="#Assembly-Basic" class="headerlink" title="Assembly Basic"></a>Assembly Basic</h2><p><code>EAX</code> Accumulator 累加寄存器</p>
+<p><code>EBX</code> Base 基地址寄存器</p>
+<p><code>ECX</code> Counter 计数寄存器</p>
+<p><code>EDX</code> Data 数据寄存器</p>
+<p><img src="http://rok.gamison.top/note/20200415113009.png"></p>
+<p><strong>Index and pointer registers</strong></p>
+<p><code>ESI</code> - Source index 源变址寄存器</p>
+<p><code>EDI</code> - Destination index 目的变址寄存器</p>
+<p><code>EBP</code> - Extended Base Pointer 栈指针寄存器，永远指向系统栈最上面的一个栈帧的栈顶</p>
+<p><code>ESP</code> - Extended Stack Pointer 基址指针寄存器，永远指向系统栈最上面的一个栈帧的栈底</p>
+<p> <code>EIP</code> - Index Pointer Register</p>
+<p><strong>Segment Registers</strong> </p>
+<p>● CS - the code segment register 代码段寄存器用于存放代码</p>
+<p>● DS - the data segment register 数据段寄存器存放数据</p>
+<p>● SS - the stack segment register 栈段寄存器，相当于堆栈段的首地址</p>
+<p>● ES, FG, GS - Some string operations use an optional segment register to control memory addressing. </p>
+<p><strong>Variable types</strong></p>
+<p><code>db</code> data byte - memory allocation for 1 byte data</p>
+<p><code>dw</code>  data word - memory allocation for 2 byte data</p>
+<p><code>dd </code> double word - memory allocation for 4 byte data</p>
+<p><code>df</code> double word - memory allocation for 6 byte data</p>
+<p><code>dq</code> double word - memory allocation for 8 byte data</p>
+<h2 id="FASM"><a href="#FASM" class="headerlink" title="FASM"></a>FASM</h2><p>一个例子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">format PE GUI 4 . 0</span><br><span class="line">//声明二进制文件的类型</span><br><span class="line"></span><br><span class="line">entry s t a r t</span><br><span class="line"></span><br><span class="line">include ’win32ax.inc’</span><br><span class="line"></span><br><span class="line">struct GdiplusStartupInput</span><br><span class="line">		GdiplusVers ion dd ?</span><br><span class="line">		DebugEventCallback dd ?</span><br><span class="line">		SuppressBackgroundThread dd ?</span><br><span class="line">		SuppressExternalCodecs dd ?</span><br><span class="line">ends</span><br><span class="line"></span><br><span class="line">library gdi , ’GDI.DLL’, \</span><br><span class="line">		gdiplus , ’GDIPLUS.DLL’,\</span><br><span class="line">		kernel32 , ’KERNEL32.DLL’,\</span><br><span class="line">		user32 , ’USER32.DLL’</span><br><span class="line"></span><br><span class="line">wc WNDCLASS 0, WindowProc, 0, 0,NULL,NULL,NULL,COLORBTNFACE+1,NULL, class</span><br><span class="line">//注册一个windows类</span><br><span class="line"></span><br><span class="line">msg MSG</span><br><span class="line"></span><br><span class="line">invoke GetModuleHandle , 0</span><br><span class="line"></span><br><span class="line">mov [ wc.hInstance ], eax</span><br><span class="line"></span><br><span class="line">invoke LoadCursor , 0 ,IDCARROW</span><br><span class="line"></span><br><span class="line">invoke GdiplusStartup , token , input , Null</span><br><span class="line">//初始化Windows GDI+</span><br><span class="line">//token参数指向一个DW变量的指针，用于接受GDI+的TOKEN.TOKEN,该参数在后期结束释放GDI+资源时使用GdiplusShutdown用到</span><br><span class="line">//input, output参数是指向两个结构体变量的指针：input中包括GDC+版本、指向debug callback函数的指针、压缩相关指令等等</span><br><span class="line"></span><br><span class="line">test eax , eax</span><br><span class="line">//test用于将两个操作数进行逻辑与运算，并根据结果设置标志位</span><br><span class="line">jnz error</span><br><span class="line"></span><br><span class="line">invoke BeginPaint [ hwnd ], paintStructVariable</span><br><span class="line">//为指定窗口进行绘图工作的准备，并将相关信息填充到paintStructVarible结构中</span><br><span class="line"></span><br><span class="line">stdcall draw, EAX, $FF000000</span><br><span class="line"></span><br><span class="line">invoke GdipCreateFromHDC , [ hdc ] , addr pGraphics</span><br><span class="line">//创建相对应的绘图区域</span><br><span class="line"></span><br><span class="line">invoke GdipCreatePen1 , [ color ] , 3 .0 , 2 , addr pPen</span><br><span class="line"></span><br><span class="line">invoke GdipSetSmoothingMode , [ pGraphics ] , 2</span><br><span class="line">//确定渲染质量</span><br><span class="line"></span><br><span class="line">invoke GdipDrawLineI , [ pGraphics ] , [ pPen ] , </span><br><span class="line">	addr 0+ebx ∗8 , addr 100+ebx ∗8 , </span><br><span class="line">	addr 700+ebx ∗8 , addr 400+ebx∗8</span><br><span class="line">//GdipDrawLineI函数用于在两点之间画线</span><br><span class="line">//[pGraphics]参数是指向对象的指针</span><br><span class="line">//[pPen]参数是指向画线的“笔”的指针</span><br><span class="line">//后面参数用于定位起始点和终止点</span><br></pre></td></tr></table></figure>
+
+<p><code>GetModuleHandle</code> 用于获取一个应用程序或动态链接库的模块句柄，前提是目的模块已映射到调用该函数的进程内</p>
+<p><code>LoadCursor</code> 从一个与相关的可执行文件中载入指定的光标资源</p>
+<p><code>ARGB</code> - Alpha(transparency) + RGB</p>
+<blockquote>
+<p>参考资料：<br><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-CN/windows/win32/gdiplus/-gdiplus-gdi-start">Windows API GDI+官方文档</a><br>[关于Gdi+和GdiplusStartup](</p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://aw.gamison.top/2020/04/16/graphic-and-assembly-basic/" data-id="ckuz3nsi10007i4uva2yy3zyd" class="article-share-link">
+        Share
+      </a>
+      
+<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Computer-Basic/" rel="tag">Computer Basic</a></li></ul>
+
+    </footer>
+
+  </div>
+
+  
+  
+<nav class="article-nav">
+  
+  <a href="/2020/11/07/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/" class="article-nav-link">
+    <strong class="article-nav-caption">Newer</strong>
+    <div class="article-nav-title">
+      
+      Redis学习笔记1-SDS数据结构
+      
+    </div>
+  </a>
+  
+  
+  <a href="/2020/04/15/ComputerBasic-fasmgdip/" class="article-nav-link">
+    <strong class="article-nav-caption">Older</strong>
+    <div class="article-nav-title">【Computer Basic】FASM+GDPI</div>
+  </a>
+  
+</nav>
+
+  
+
+  
+  
+  
+  
+
+</article>
+</section>
+    <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+  <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+  <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>GaMiSon &copy; 2021</li>
+      
+        <li></li>
+      
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>theme  <a target="_blank" rel="noopener" href="https://github.com/zhwangart/hexo-theme-ocean">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+  </main>
+  <aside class="sidebar">
+    <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/hexo.svg" alt="GaMiSon"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">Home</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">Archives</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/gallery">Gallery</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">About</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://www.yuque.com/gamison">Notes</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="fe fe-feed"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+  </aside>
+  
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/copybtn.js"></script>
+
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+  });
+</script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+</body>
+
+</html>

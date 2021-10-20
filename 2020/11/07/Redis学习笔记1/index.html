@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>
+    Redis学习笔记1-SDS数据结构 |
+    
+    GaMiSon</title>
+  
+  <link rel="shortcut icon" href="/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<script src="/js/pace.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="GaMiSon" type="application/atom+xml">
+</head>
+
+<body>
+  <main class="content">
+    <section class="outer">
+  <article id="post-Redis学习笔记1" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+      
+
+<h1 class="article-title" itemprop="name">
+  Redis学习笔记1-SDS数据结构
+</h1>
+
+
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/11/07/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/" class="article-date">
+  <time datetime="2020-11-07T08:43:23.000Z" itemprop="datePublished">2020-11-07</time>
+</a>
+      
+    </div>
+    
+
+    
+    
+<div class="tocbot"></div>
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+      
+      <p>Redis6.0源码及《Redis设计与实现》阅读</p>
+<span id="more"></span>
+
+<p>简单动态字符串<code>simple dynamic string</code>, redis中默认的字符串表示。</p>
+<p>源码阅读：</p>
+<p><code>/src/sds.h</code> &amp; <code>/src/sds.c</code></p>
+<h3 id="SDS的定义"><a href="#SDS的定义" class="headerlink" title="SDS的定义"></a>SDS的定义</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Note: sdshdr5 is never used, we just access the flags byte directly.</span></span><br><span class="line"><span class="comment"> * However is here to document the layout of type 5 SDS strings. */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr5</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, and 5 msb of string length */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr16</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint16_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="keyword">uint16_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr32</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint32_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="keyword">uint32_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr64</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint64_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="keyword">uint64_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>SDS有5种不同的类型，使用非字节对齐的结构体让不同的字符串使用不同长度的数据结构，从而节省内存。</p>
+<p>SDS 遵循 C 字符串以空字符结尾的惯例， 保存空字符的 1 字节空间不计算在 SDS 的 len 属性里面， 并且为空字符分配额外的 1 字节空间， 以及添加空字符到字符串末尾等操作都是由 SDS 函数自动完成的， 所以这个空字符对于 SDS 的使用者来说是完全透明的。</p>
+<h3 id="获取字符串长度"><a href="#获取字符串长度" class="headerlink" title="获取字符串长度"></a>获取字符串长度</h3><p>SDS中获取一个字符串长度的复杂度仅为O(1)，在<code>len</code>属性中已经记录了字符串的长度，获取长度仅需访问属性即可</p>
+<h3 id="杜绝缓冲区溢出"><a href="#杜绝缓冲区溢出" class="headerlink" title="杜绝缓冲区溢出"></a>杜绝缓冲区溢出</h3><p>当SDS api需要对SDS进行修改的时候，API会先检查SDS的空间是否满足修改所需的要求，如果不满足，api会自动将SDS空间扩展至执行修改所需要的大小，才进行修改操作，所以这种空间分配策略完全杜绝了发生字符串缓冲区溢出的可能性</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Append the specified binary-safe string pointed by &#x27;t&#x27; of &#x27;len&#x27; bytes to the</span></span><br><span class="line"><span class="comment"> * end of the specified sds string &#x27;s&#x27;.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * After the call, the passed sds string is no longer valid and all the</span></span><br><span class="line"><span class="comment"> * references must be substituted with the new pointer returned by the call. */</span></span><br><span class="line"><span class="function">sds <span class="title">sdscatlen</span><span class="params">(sds s, <span class="keyword">const</span> <span class="keyword">void</span> *t, <span class="keyword">size_t</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">size_t</span> curlen = sdslen(s);</span><br><span class="line"></span><br><span class="line">    s = sdsMakeRoomFor(s,len);</span><br><span class="line">    <span class="keyword">if</span> (s == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="built_in">memcpy</span>(s+curlen, t, len);</span><br><span class="line">    sdssetlen(s, curlen+len);</span><br><span class="line">    s[curlen+len] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>检查SDS空间是否足够，不够的话通过<code>sdsMakeRoomFor</code>自动为要拼接的字符串拓展空间</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Enlarge the free space at the end of the sds string so that the caller</span></span><br><span class="line"><span class="comment"> * is sure that after calling this function can overwrite up to addlen</span></span><br><span class="line"><span class="comment"> * bytes after the end of the string, plus one more byte for nul term.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Note: this does not change the *length* of the sds string as returned</span></span><br><span class="line"><span class="comment"> * by sdslen(), but only the free buffer space we have. */</span></span><br><span class="line"><span class="function">sds <span class="title">sdsMakeRoomFor</span><span class="params">(sds s, <span class="keyword">size_t</span> addlen)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">void</span> *sh, *newsh;</span><br><span class="line">    <span class="keyword">size_t</span> avail = sdsavail(s);</span><br><span class="line">    <span class="keyword">size_t</span> len, newlen;</span><br><span class="line">    <span class="keyword">char</span> type, oldtype = s[<span class="number">-1</span>] &amp; SDS_TYPE_MASK;</span><br><span class="line">    <span class="keyword">int</span> hdrlen;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Return ASAP if there is enough space left. */</span></span><br><span class="line">    <span class="keyword">if</span> (avail &gt;= addlen) <span class="keyword">return</span> s;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* SDS_MAX_PREALLOC is defined to 1MB according to sds.h.*/</span></span><br><span class="line">    len = sdslen(s);</span><br><span class="line">    sh = (<span class="keyword">char</span>*)s-sdsHdrSize(oldtype);</span><br><span class="line">    newlen = (len+addlen);</span><br><span class="line">    <span class="keyword">if</span> (newlen &lt; SDS_MAX_PREALLOC)</span><br><span class="line">        newlen *= <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        newlen += SDS_MAX_PREALLOC;</span><br><span class="line">    </span><br><span class="line">	<span class="comment">/* Change header if necessary.*/</span></span><br><span class="line">    type = sdsReqType(newlen);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Don&#x27;t use type 5: the user is appending to the string and type 5 is</span></span><br><span class="line"><span class="comment">     * not able to remember empty space, so sdsMakeRoomFor() must be called</span></span><br><span class="line"><span class="comment">     * at every appending operation. */</span></span><br><span class="line">    <span class="keyword">if</span> (type == SDS_TYPE_5) type = SDS_TYPE_8;</span><br><span class="line"></span><br><span class="line">    hdrlen = sdsHdrSize(type);</span><br><span class="line">    <span class="keyword">if</span> (oldtype==type) &#123;</span><br><span class="line">        newsh = s_realloc(sh, hdrlen+newlen+<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (newsh == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        s = (<span class="keyword">char</span>*)newsh+hdrlen;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/* Since the header size changes, need to move the string forward,</span></span><br><span class="line"><span class="comment">         * and can&#x27;t use realloc */</span></span><br><span class="line">        newsh = s_malloc(hdrlen+newlen+<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (newsh == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        <span class="built_in">memcpy</span>((<span class="keyword">char</span>*)newsh+hdrlen, s, len+<span class="number">1</span>);</span><br><span class="line">        s_free(sh);</span><br><span class="line">        s = (<span class="keyword">char</span>*)newsh+hdrlen;</span><br><span class="line">        s[<span class="number">-1</span>] = type;</span><br><span class="line">        sdssetlen(s, len);</span><br><span class="line">    &#125;</span><br><span class="line">    sdssetalloc(s, newlen);</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="减少修改字符串时带来的内存重分配次数"><a href="#减少修改字符串时带来的内存重分配次数" class="headerlink" title="减少修改字符串时带来的内存重分配次数"></a>减少修改字符串时带来的内存重分配次数</h3><ul>
+<li>空间预分配</li>
+</ul>
+<p>当SDS api对一个sds进行修改并需要对其进行空间扩展的时候，程序还会额外为其分配除了所需的空间之外的未使用空间。</p>
+<p>实现方式如上<code>sdsMakeRoomFor</code></p>
+<ul>
+<li>惰性空间释放</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Remove the part of the string from left and from right composed just of</span></span><br><span class="line"><span class="comment"> * contiguous characters found in &#x27;cset&#x27;, that is a null terminted C string.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * After the call, the modified sds string is no longer valid and all the</span></span><br><span class="line"><span class="comment"> * references must be substituted with the new pointer returned by the call.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Example:</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * s = sdsnew(&quot;AA...AA.a.aa.aHelloWorld     :::&quot;);</span></span><br><span class="line"><span class="comment"> * s = sdstrim(s,&quot;Aa. :&quot;);</span></span><br><span class="line"><span class="comment"> * printf(&quot;%s\n&quot;, s);</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Output will be just &quot;HelloWorld&quot;.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function">sds <span class="title">sdstrim</span><span class="params">(sds s, <span class="keyword">const</span> <span class="keyword">char</span> *cset)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> *start, *end, *sp, *ep;</span><br><span class="line">    <span class="keyword">size_t</span> len;</span><br><span class="line"></span><br><span class="line">    sp = start = s;</span><br><span class="line">    ep = end = s+sdslen(s)<span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">while</span>(sp &lt;= end &amp;&amp; <span class="built_in">strchr</span>(cset, *sp)) sp++;</span><br><span class="line">    <span class="keyword">while</span>(ep &gt; sp &amp;&amp; <span class="built_in">strchr</span>(cset, *ep)) ep--;</span><br><span class="line">    len = (sp &gt; ep) ? <span class="number">0</span> : ((ep-sp)+<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span> (s != sp) memmove(s, sp, len);</span><br><span class="line">    s[len] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">    sdssetlen(s,len);</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看出<code>sdstrim</code>结束后并没有真正释放空间，SDS将多出来的空间作为未使用保存在SDS中，而是修改了结构体中的<code>len</code>属性，这样避免了缩短字符串所需的内存重分配操作，并为将来可能有的增长操作提供了优化。如果有需要真正释放内存空间的时候需要调用<code>sdsRemoveFreeSpace</code>函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Reallocate the sds string so that it has no free space at the end. The</span></span><br><span class="line"><span class="comment"> * contained string remains not altered, but next concatenation operations</span></span><br><span class="line"><span class="comment"> * will require a reallocation.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * After the call, the passed sds string is no longer valid and all the</span></span><br><span class="line"><span class="comment"> * references must be substituted with the new pointer returned by the call. */</span></span><br><span class="line"><span class="function">sds <span class="title">sdsRemoveFreeSpace</span><span class="params">(sds s)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">void</span> *sh, *newsh;</span><br><span class="line">    <span class="keyword">char</span> type, oldtype = s[<span class="number">-1</span>] &amp; SDS_TYPE_MASK;</span><br><span class="line">    <span class="keyword">int</span> hdrlen, oldhdrlen = sdsHdrSize(oldtype);</span><br><span class="line">    <span class="keyword">size_t</span> len = sdslen(s);</span><br><span class="line">    <span class="keyword">size_t</span> avail = sdsavail(s);</span><br><span class="line">    sh = (<span class="keyword">char</span>*)s-oldhdrlen;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Return ASAP if there is no space left. */</span></span><br><span class="line">    <span class="keyword">if</span> (avail == <span class="number">0</span>) <span class="keyword">return</span> s;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Check what would be the minimum SDS header that is just good enough to</span></span><br><span class="line"><span class="comment">     * fit this string. */</span></span><br><span class="line">    type = sdsReqType(len);</span><br><span class="line">    hdrlen = sdsHdrSize(type);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* If the type is the same, or at least a large enough type is still</span></span><br><span class="line"><span class="comment">     * required, we just realloc(), letting the allocator to do the copy</span></span><br><span class="line"><span class="comment">     * only if really needed. Otherwise if the change is huge, we manually</span></span><br><span class="line"><span class="comment">     * reallocate the string to use the different header type. */</span></span><br><span class="line">    <span class="keyword">if</span> (oldtype==type || type &gt; SDS_TYPE_8) &#123;</span><br><span class="line">        newsh = s_realloc(sh, oldhdrlen+len+<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (newsh == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        s = (<span class="keyword">char</span>*)newsh+oldhdrlen;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        newsh = s_malloc(hdrlen+len+<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (newsh == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">        <span class="built_in">memcpy</span>((<span class="keyword">char</span>*)newsh+hdrlen, s, len+<span class="number">1</span>);</span><br><span class="line">        s_free(sh);</span><br><span class="line">        s = (<span class="keyword">char</span>*)newsh+hdrlen;</span><br><span class="line">        s[<span class="number">-1</span>] = type;</span><br><span class="line">        sdssetlen(s, len);</span><br><span class="line">    &#125;</span><br><span class="line">    sdssetalloc(s, len);</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="二进制数据的存放"><a href="#二进制数据的存放" class="headerlink" title="二进制数据的存放"></a>二进制数据的存放</h3><p>SDS api会以处理二进制的方式来处理任何放进buf数组的数据并不会对其中的数据作任何限制、过滤或者假设，数据在线写入的时候时什么样子的，被读取的时候就是什么样子的。</p>
+<p>例如，SDS使用<code>len</code>属性来判断字符串是否结束而不是空字符。打个不完全恰当的比方，SDS就不会出现类似于php中<code>%00截断</code>的安全问题。</p>
+<p>看源码的时候发现这个有趣的函数，意思是可以在手动修改字符串后，使用<code>sdsupdatelen</code>进行字符串长度的更新，即按照空字符进行截断，而不是上述默认的长度判定方式。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Set the sds string length to the length as obtained with strlen(), so</span></span><br><span class="line"><span class="comment"> * considering as content only up to the first null term character.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * This function is useful when the sds string is hacked manually in some</span></span><br><span class="line"><span class="comment"> * way, like in the following example:</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * s = sdsnew(&quot;foobar&quot;);</span></span><br><span class="line"><span class="comment"> * s[2] = &#x27;\0&#x27;;</span></span><br><span class="line"><span class="comment"> * sdsupdatelen(s);</span></span><br><span class="line"><span class="comment"> * printf(&quot;%d\n&quot;, sdslen(s));</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * The output will be &quot;2&quot;, but if we comment out the call to sdsupdatelen()</span></span><br><span class="line"><span class="comment"> * the output will be &quot;6&quot; as the string was modified but the logical length</span></span><br><span class="line"><span class="comment"> * remains 6 bytes. */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sdsupdatelen</span><span class="params">(sds s)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">size_t</span> reallen = <span class="built_in">strlen</span>(s);</span><br><span class="line">    sdssetlen(s, reallen);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>Redis版本：6.0</p>
+<p>参考部分《Redis设计与实现》及其作者的源码注释，书中版本为3.0</p>
+<p>为了看起来和谐，部分代码中自己添加的注释保持使用英文 :)</p>
+<p>参考资料：</p>
+<p><a target="_blank" rel="noopener" href="http://cs-cjl.com/2019/04_13_redis5_data_structure_1_sds">http://cs-cjl.com/2019/04_13_redis5_data_structure_1_sds</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/redis/redis">https://github.com/redis/redis</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/huangz1990/redis-3.0-annotated">https://github.com/huangz1990/redis-3.0-annotated</a></p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://aw.gamison.top/2020/11/07/Redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B01/" data-id="ckuz3nshy0003i4uv4gx2gugb" class="article-share-link">
+        Share
+      </a>
+      
+<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li></ul>
+
+    </footer>
+
+  </div>
+
+  
+  
+<nav class="article-nav">
+  
+  <a href="/2021/10/11/%E6%9C%80%E5%90%8E%E7%9A%84%E8%AE%BF%E8%B0%88/" class="article-nav-link">
+    <strong class="article-nav-caption">Newer</strong>
+    <div class="article-nav-title">
+      
+      时间长河中的泊车
+      
+    </div>
+  </a>
+  
+  
+  <a href="/2020/04/16/graphic-and-assembly-basic/" class="article-nav-link">
+    <strong class="article-nav-caption">Older</strong>
+    <div class="article-nav-title">【Computer Basic】Graphic And Assembly Basic</div>
+  </a>
+  
+</nav>
+
+  
+
+  
+  
+  
+  
+
+</article>
+</section>
+    <footer class="footer">
+  <div class="outer">
+    <div class="float-right">
+      <ul class="list-inline">
+  
+  <li><i class="fe fe-smile-alt"></i> <span id="busuanzi_value_site_uv"></span></li>
+  
+  <li><i class="fe fe-bookmark"></i> <span id="busuanzi_value_page_pv"></span></li>
+  
+</ul>
+    </div>
+    <ul class="list-inline">
+      <li>GaMiSon &copy; 2021</li>
+      
+        <li></li>
+      
+      <li>Powered by <a href="http://hexo.io/" target="_blank">Hexo</a></li>
+      <li>theme  <a target="_blank" rel="noopener" href="https://github.com/zhwangart/hexo-theme-ocean">Ocean</a></li>
+    </ul>
+  </div>
+</footer>
+  </main>
+  <aside class="sidebar">
+    <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/hexo.svg" alt="GaMiSon"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">Home</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">Archives</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/gallery">Gallery</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">About</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://www.yuque.com/gamison">Notes</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link nav-item-search" title="Search">
+        <i class="fe fe-search"></i>
+        Search
+      </a>
+    </li>
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      <div class="totop" id="totop">
+  <i class="fe fe-rocket"></i>
+</div>
+    </li>
+    <li class="nav-item">
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="fe fe-feed"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+  </aside>
+  
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/copybtn.js"></script>
+
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+  });
+</script>
+
+
+
+<script src="/js/ocean.js"></script>
+
+</body>
+
+</html>
