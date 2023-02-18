@@ -30,7 +30,7 @@
 <body>
   <main class="content">
     <section class="outer">
-  <article id="post-边缘检测和高斯模糊入门版" class="article article-type-post" itemscope
+  <article id="blog-边缘检测和高斯模糊入门版" class="article article-type-blog" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -67,13 +67,14 @@
       
       
       <p>每次等知识真的用上了才会想为啥当初不再认真点听课，卷积暂时也没有整的很明白，尽力去理解和表达一下。</p>
+<p>卷积？卷鸭！</p>
 <span id="more"></span>
 
 <h2 id="边缘检测"><a href="#边缘检测" class="headerlink" title="边缘检测"></a>边缘检测</h2><p>边缘检测本质是<strong>高通滤波器</strong>，下面的图用于说明一张图片上高通和低通部分的区别。</p>
 <p><img src="http://rok.gamison.top/note/20220316083933.png"></p>
 <h3 id="先说说卷积和卷积核"><a href="#先说说卷积和卷积核" class="headerlink" title="先说说卷积和卷积核"></a>先说说卷积和卷积核</h3><p>卷积就是用卷积核对图像中每个像素进行一系列操作，而卷积核的中心是放在当前要处理的像素上，对于每一个当前像素，计算领域像素和滤波器矩阵对应元素的乘积，然后求和就得到了当前像素的值。</p>
 <p><img src="http://rok.gamison.top/note/20220319170856.png"></p>
-<p>边缘检测的原理就是找到有着明显差别的颜色、亮度或纹理等属性的相邻像素，对应到数学知识上，这种差值可以用**梯度 (gradient)**来表示，即边缘处的梯度是比较大的。进而我们引入了边缘检测算子的概念，而我们常用的几个算子都包含了两个方向上的卷积核，即水平和数值；在进行边缘检测时，我们对每个像素进行一次卷积计算，得到两个方向上的梯度值G<sub>x</sub>和G<sub>y</sub>，然后通过下面的公式计算整体梯度</p>
+<p>边缘检测的原理就是找到有着明显差别的颜色、亮度或纹理等属性的相邻像素，对应到数学知识上，这种差值可以用梯度 (gradient)来表示，即边缘处的梯度是比较大的。进而我们引入了边缘检测算子的概念，而我们常用的几个算子都包含了两个方向上的卷积核，即水平和数值；在进行边缘检测时，我们对每个像素进行一次卷积计算，得到两个方向上的梯度值G<sub>x</sub>和G<sub>y</sub>，然后通过下面的公式计算整体梯度</p>
 <p><img src="http://rok.gamison.top/note/20220319171617.png"></p>
 <p>有时候出于性能考虑，可以使用绝对值代替开根号的操作：</p>
 <p><img src="http://rok.gamison.top/note/20220319171715.png"></p>
@@ -90,15 +91,15 @@
 <p><img src="http://rok.gamison.top/note/image-20220316091658021.png"></p>
 <p><img src="http://rok.gamison.top/note/image-20220316092130056.png"></p>
 <p><img src="http://rok.gamison.top/note/image-20220316132227778.png"></p>
-<p>为了探究Roberts算子的值的位置所造成的不同结果，我们先要明白下这个二阶算子的原理。</p>
-<p>Roberts算子是基于交叉差分的梯度算法；常用于处理具有陡峭低噪声的图像，当边缘比较接近45度的时候算法处理比较理想，缺点是对边缘的定位不准确，提取的边缘线条比较粗。</p>
+<p>为了探究Roberts算子的值的位置所造成的不同结果，我们先要明白下这个二阶算子的原理（按第一种矩阵来说明）</p>
+<p>Roberts算子是基于交叉差分的梯度算法；本质是计算左上角和右下角的差值，乘以右上角和左下角的差值，作为评估边缘的依据；常用于处理具有陡峭低噪声的图像，当边缘比较接近45度的时候算法处理比较理想，缺点是对边缘的定位不准确，提取的边缘线条比较粗。</p>
 <p>因此我们谈到Roberts算子，一般使用的是具有对角值的矩阵，而非对角值矩阵所产生的边界会没有那么明显。</p>
 <h4 id="Prewitt算子及效果图"><a href="#Prewitt算子及效果图" class="headerlink" title="Prewitt算子及效果图"></a>Prewitt算子及效果图</h4><p>Prewitt算子对噪声有抑制作用，通过先对图像进行一个方向的归一化均值平滑，然后进行该方向的差分；但是Prewitt对于边缘的定位没有Roberts算子准确。</p>
 <p><img src="http://rok.gamison.top/note/20220317232036.png"></p>
 <p><img src="http://rok.gamison.top/note/image-20220319152400680.png"></p>
 <h4 id="Sobel算子及效果图"><a href="#Sobel算子及效果图" class="headerlink" title="Sobel算子及效果图"></a>Sobel算子及效果图</h4><p><img src="http://rok.gamison.top/note/20220317232052.png"></p>
 <p><img src="http://rok.gamison.top/note/20220319152555.png"></p>
-<h4 id="在Unity中实现"><a href="#在Unity中实现" class="headerlink" title="在Unity中实现"></a>在Unity中实现</h4><p>以Sobel算子为例</p>
+<h4 id="在Unity中实现Sobel算子"><a href="#在Unity中实现Sobel算子" class="headerlink" title="在Unity中实现Sobel算子"></a>在Unity中实现Sobel算子</h4><p>以Sobel算子为例</p>
 <ul>
 <li>创建EdgeDetection的C#脚本</li>
 </ul>
@@ -120,7 +121,22 @@
 <p><img src="http://rok.gamison.top/note/20220319000351.png"></p>
 <p>EdgesOnly为1时：</p>
 <p><img src="http://rok.gamison.top/note/20220319000320.png"></p>
-<h2 id="高斯模糊"><a href="#高斯模糊" class="headerlink" title="高斯模糊"></a>高斯模糊</h2><p>高斯模糊本质也是卷积计算，使用的卷积核为高斯核——一个正方形大小的滤波器，每个元素基于以下方程计算，σ为标准差（一般取1），x和y分别对应当前位置到卷积核中心的整数距离。<br>$$<br>G(x,y)=\frac{1}{2\pi\sigma^2}e^{-\frac{x^2+y^2}{2\sigma^2}}<br>$$<br>计算得到卷积核中各个位置的高斯值后，为保证滤波后图像不会变暗，需要将核中的权重进行归一化——让每个权重除以所有权重的和，保证所有权重的和为1。高斯方程模拟了邻域像素离当前像素越近影响越大，<strong>因此高斯核维数越多，模糊程度越大</strong>。使用一个NxN的高斯核对图像进行卷积滤波，就需要NxNxWxH次纹理采样，因此当维数越多，采样次数会十分巨量。因此，可以将二维的高斯函数拆分成两个一维函数，即使用两个一维高斯核先后对图像进行滤波，采样次数减少为2xNxWxH。</p>
+<h4 id="在Unity中实现Roberts算子"><a href="#在Unity中实现Roberts算子" class="headerlink" title="在Unity中实现Roberts算子"></a>在Unity中实现Roberts算子</h4><ul>
+<li>脚本代码在Sobel算子的基础上添加一些新的属性，用于控制采样距离以及对深度和法线进行边缘检测时的灵敏度参数，并在后续<code>OnRenderImage</code>函数中将参数传递给材质</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[Range(0.0f, 1.0f)]</span><br><span class="line">public float edgesOnly = 0.0f;</span><br><span class="line">public Color edgeColor = Color.black;</span><br><span class="line">public Color backgroundColor = Color.white;</span><br><span class="line"></span><br><span class="line">public float sampleDistance = 1.0f;</span><br><span class="line">public float sensitivityDepth = 1.0f;</span><br><span class="line">public float sensitivityNormals = 1.0f;</span><br><span class="line"></span><br><span class="line">void OnEnable() &#123;</span><br><span class="line">		GetComponent&lt;Camera&gt;().depthTextureMode |= DepthTextureMode.DepthNormals;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">[ImageEffectOpaque]</span><br><span class="line">void OnRenderImage (RenderTexture src, RenderTexture dest) &#123;</span><br><span class="line">    if (material != null) &#123;</span><br><span class="line">        material.SetFloat(&quot;_EdgeOnly&quot;, edgesOnly);</span><br><span class="line">        material.SetColor(&quot;_EdgeColor&quot;, edgeColor);</span><br><span class="line">        material.SetColor(&quot;_BackgroundColor&quot;, backgroundColor);</span><br><span class="line">        material.SetFloat(&quot;_SampleDistance&quot;, sampleDistance);</span><br><span class="line">        material.SetVector(&quot;_Sensitivity&quot;, new Vector4(sensitivityNormals, sensitivityDepth, 0.0f, 0.0f));</span><br><span class="line"></span><br><span class="line">        Graphics.Blit(src, dest, material);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        Graphics.Blit(src, dest);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>[ImageEffectOpaque]属性使OnRenderImage函数在不透明的pass执行完毕后调用，而不对不透明物体产生影响；因此在<strong>对不透明物体描边而不希望透明物体也被描边时</strong>添加。</p>
+<ul>
+<li>对应shader</li>
+</ul>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line">Shader &quot;Unity Shaders Book/Edge Detection Normals And Depth&quot; &#123;</span><br><span class="line">	Properties &#123;</span><br><span class="line">		_MainTex (&quot;Base (RGB)&quot;, <span class="number">2</span>D) = &quot;white&quot; &#123;&#125;</span><br><span class="line">		_EdgeOnly (&quot;Edge Only&quot;, Float) = <span class="number">1.0</span></span><br><span class="line">		_EdgeColor (&quot;Edge Color&quot;, Color) = (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>)</span><br><span class="line">		_BackgroundColor (&quot;Background Color&quot;, Color) = (<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">		_SampleDistance (&quot;Sample Distance&quot;, Float) = <span class="number">1.0</span></span><br><span class="line">		_Sensitivity (&quot;Sensitivity&quot;, Vector) = (<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	SubShader &#123;</span><br><span class="line">		CGINCLUDE</span><br><span class="line">		</span><br><span class="line">		<span class="meta">#include &quot;UnityCG.cginc&quot;</span></span><br><span class="line">		</span><br><span class="line">        <span class="comment">//_Sensitivity的xy分量分别对应法线和深度的检测灵敏度；_CameraDepthNormalsTexture声明了需要获取的深度和法线纹理 </span></span><br><span class="line">		<span class="type">sampler2D</span> _MainTex;</span><br><span class="line">		half4 _MainTex_TexelSize;</span><br><span class="line">		fixed _EdgeOnly;</span><br><span class="line">		fixed4 _EdgeColor;</span><br><span class="line">		fixed4 _BackgroundColor;</span><br><span class="line">		<span class="type">float</span> _SampleDistance;</span><br><span class="line">		half4 _Sensitivity;</span><br><span class="line">		<span class="type">sampler2D</span> _CameraDepthNormalsTexture;</span><br><span class="line">		</span><br><span class="line">		struct v2f &#123;</span><br><span class="line">			float4 pos : SV_POSITION;</span><br><span class="line">			half2 uv[<span class="number">5</span>]: TEXCOORD0;</span><br><span class="line">		&#125;;</span><br><span class="line">		  </span><br><span class="line">		v2f vert(appdata_img v) &#123;</span><br><span class="line">			v2f o;</span><br><span class="line">			o.pos = UnityObjectToClipPos(v.vertex);</span><br><span class="line">			</span><br><span class="line">			half2 uv = v.texcoord;</span><br><span class="line">			o.uv[<span class="number">0</span>] = uv;</span><br><span class="line">			</span><br><span class="line">			<span class="meta">#if UNITY_UV_STARTS_AT_TOP</span></span><br><span class="line">			<span class="keyword">if</span> (_MainTex_TexelSize.y &lt; <span class="number">0</span>)</span><br><span class="line">				uv.y = <span class="number">1</span> - uv.y;</span><br><span class="line">			<span class="meta">#endif</span></span><br><span class="line">			</span><br><span class="line">			o.uv[<span class="number">1</span>] = uv + _MainTex_TexelSize.xy * half2(<span class="number">1</span>,<span class="number">1</span>) * _SampleDistance;</span><br><span class="line">			o.uv[<span class="number">2</span>] = uv + _MainTex_TexelSize.xy * half2(<span class="number">-1</span>,<span class="number">-1</span>) * _SampleDistance;</span><br><span class="line">			o.uv[<span class="number">3</span>] = uv + _MainTex_TexelSize.xy * half2(<span class="number">-1</span>,<span class="number">1</span>) * _SampleDistance;</span><br><span class="line">			o.uv[<span class="number">4</span>] = uv + _MainTex_TexelSize.xy * half2(<span class="number">1</span>,<span class="number">-1</span>) * _SampleDistance;</span><br><span class="line">					 </span><br><span class="line">			<span class="keyword">return</span> o;</span><br><span class="line">		&#125;</span><br><span class="line">        </span><br><span class="line">		<span class="comment">//CheckSame函数用于计算对角线上两个纹理值的差值，返回值为0代表两点之间存在边界，否则为1；首先通过使用xy分量获得采样点的法线和深度值</span></span><br><span class="line">		half CheckSame(half4 center, half4 <span class="keyword">sample</span>) &#123;</span><br><span class="line">			half2 centerNormal = center.xy;</span><br><span class="line">			<span class="type">float</span> centerDepth = DecodeFloatRG(center.zw);</span><br><span class="line">			half2 sampleNormal = <span class="keyword">sample</span>.xy;</span><br><span class="line">			<span class="type">float</span> sampleDepth = DecodeFloatRG(<span class="keyword">sample</span>.zw);</span><br><span class="line">			</span><br><span class="line">			half2 diffNormal = <span class="built_in">abs</span>(centerNormal - sampleNormal) * _Sensitivity.x;</span><br><span class="line">			<span class="type">int</span> isSameNormal = (diffNormal.x + diffNormal.y) &lt; <span class="number">0.1</span>;</span><br><span class="line">			<span class="type">float</span> diffDepth = <span class="built_in">abs</span>(centerDepth - sampleDepth) * _Sensitivity.y;</span><br><span class="line">			<span class="type">int</span> isSameDepth = diffDepth &lt; <span class="number">0.1</span> * centerDepth;</span><br><span class="line">		</span><br><span class="line">			<span class="keyword">return</span> isSameNormal * isSameDepth ? <span class="number">1.0</span> : <span class="number">0.0</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		fixed4 fragRobertsCrossDepthAndNormal(v2f i) : SV_Target &#123;</span><br><span class="line">			half4 sample1 = tex2D(_CameraDepthNormalsTexture, i.uv[<span class="number">1</span>]);</span><br><span class="line">			half4 sample2 = tex2D(_CameraDepthNormalsTexture, i.uv[<span class="number">2</span>]);</span><br><span class="line">			half4 sample3 = tex2D(_CameraDepthNormalsTexture, i.uv[<span class="number">3</span>]);</span><br><span class="line">			half4 sample4 = tex2D(_CameraDepthNormalsTexture, i.uv[<span class="number">4</span>]);</span><br><span class="line">			</span><br><span class="line">			half edge = <span class="number">1.0</span>;</span><br><span class="line">			</span><br><span class="line">			edge *= CheckSame(sample1, sample2);</span><br><span class="line">			edge *= CheckSame(sample3, sample4);</span><br><span class="line">			</span><br><span class="line">			fixed4 withEdgeColor = lerp(_EdgeColor, tex2D(_MainTex, i.uv[<span class="number">0</span>]), edge);</span><br><span class="line">			fixed4 onlyEdgeColor = lerp(_EdgeColor, _BackgroundColor, edge);</span><br><span class="line">			</span><br><span class="line">			<span class="keyword">return</span> lerp(withEdgeColor, onlyEdgeColor, _EdgeOnly);</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		ENDCG</span><br><span class="line">		</span><br><span class="line">		Pass &#123; </span><br><span class="line">			ZTest Always Cull Off ZWrite Off</span><br><span class="line">			</span><br><span class="line">			CGPROGRAM      </span><br><span class="line">			</span><br><span class="line">			<span class="meta">#pragma vertex vert  </span></span><br><span class="line">			<span class="meta">#pragma fragment fragRobertsCrossDepthAndNormal</span></span><br><span class="line">			</span><br><span class="line">			ENDCG  </span><br><span class="line">		&#125;</span><br><span class="line">	&#125; </span><br><span class="line">	FallBack Off</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://rok.gamison.top/note/20220320164717.png"></p>
+<p><img src="http://rok.gamison.top/note/20220320164651.png"></p>
+<h2 id="高斯模糊"><a href="#高斯模糊" class="headerlink" title="高斯模糊"></a>高斯模糊</h2><p>高斯模糊本质也是卷积计算，使用的卷积核为高斯核——一个正方形大小的滤波器，每个元素基于以下方程计算，σ为标准差（一般取1），x和y分别对应当前位置到卷积核中心的整数距离。</p>
+<p><img src="http://rok.gamison.top/note/20220320162809.png"></p>
+<p>计算得到卷积核中各个位置的高斯值后，为保证滤波后图像不会变暗，需要将核中的权重进行归一化——让每个权重除以所有权重的和，保证所有权重的和为1。高斯方程模拟了邻域像素离当前像素越近影响越大，<strong>因此高斯核维数越多，模糊程度越大</strong>。使用一个NxN的高斯核对图像进行卷积滤波，就需要NxNxWxH次纹理采样，因此当维数越多，采样次数会十分巨量。因此，可以将二维的高斯函数拆分成两个一维函数，即使用两个一维高斯核先后对图像进行滤波，采样次数减少为2xNxWxH。</p>
 <p><img src="http://rok.gamison.top/note/20220319161008.png"></p>
 <h3 id="在OpenCV-Python中实现"><a href="#在OpenCV-Python中实现" class="headerlink" title="在OpenCV-Python中实现"></a>在OpenCV-Python中实现</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">img_gauss = cv2.GaussianBlur(img_gray, (<span class="number">5</span>, <span class="number">5</span>), <span class="number">0</span>)</span><br></pre></td></tr></table></figure>
 
@@ -149,11 +165,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://aw.gamison.top/2022/03/19/%E8%BE%B9%E7%BC%98%E6%A3%80%E6%B5%8B%E5%92%8C%E9%AB%98%E6%96%AF%E6%A8%A1%E7%B3%8A%E5%85%A5%E9%97%A8%E7%89%88/" data-id="cl0xotpuu0009qwuv0gmpakuv" class="article-share-link">
+      <a data-url="http://aw.gamison.top/2022/03/19/%E8%BE%B9%E7%BC%98%E6%A3%80%E6%B5%8B%E5%92%8C%E9%AB%98%E6%96%AF%E6%A8%A1%E7%B3%8A%E5%85%A5%E9%97%A8%E7%89%88/" data-id="clea29q6a000i20uvd0ligmih" class="article-share-link">
         Share
       </a>
       
-<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/" rel="tag">OpenCV</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Unity/" rel="tag">Unity</a></li></ul>
+<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/" rel="tag">OpenCV</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Shader/" rel="tag">Shader</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Unity/" rel="tag">Unity</a></li></ul>
 
     </footer>
 
@@ -162,6 +178,15 @@
   
   
 <nav class="article-nav">
+  
+  <a href="/2023/02/18/Gamison-p2023/" class="article-nav-link">
+    <strong class="article-nav-caption">Newer</strong>
+    <div class="article-nav-title">
+      
+      Gamison* p2023
+      
+    </div>
+  </a>
   
   
   <a href="/2021/10/11/%E6%9C%80%E5%90%8E%E7%9A%84%E8%AE%BF%E8%B0%88/" class="article-nav-link">
@@ -192,7 +217,7 @@
 </ul>
     </div>
     <ul class="list-inline">
-      <li>GaMiSon &copy; 2022</li>
+      <li>GaMiSon &copy; 2023</li>
       
         <li></li>
       
